@@ -131,6 +131,7 @@ export const checkUserRole = async (req, res) => {
     await client.connect();
 
     const { email } = req.body;
+    console.log(req.body);
 
     const result = await Promise.all([
       client.db("wn-classroom").collection("admins").findOne({ email }),
@@ -138,6 +139,7 @@ export const checkUserRole = async (req, res) => {
       client.db("wn-classroom").collection("users").findOne({ email }),
     ]);
     const user = result.filter((obj) => !!obj);
+    console.log(user);
     res.send({
       status: "success",
       data: user.length > 0 ? user[0].role : "notfound",
