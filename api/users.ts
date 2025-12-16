@@ -26,33 +26,6 @@ export const getUsers = async (req, res) => {
   }
 };
 
-/**
- * Deprecated - Use getOneUser instead to fetch all user data at once
- * @param req
- * @param res
- */
-export const getUserRole = async (req, res) => {
-  try {
-    await client.connect();
-
-    const { email } = req.body;
-
-    const [admin, teacher, applicant] = await Promise.all([
-      client.db("wn-classroom").collection("admins").findOne({ email }),
-      client.db("wn-classroom").collection("teachers").findOne({ email }),
-      client.db("wn-classroom").collection("users").findOne({ email }),
-    ]);
-
-    const role = admin?.role || teacher?.role || applicant?.role || null;
-    res.send({ status: "success", data: role });
-  } catch (e) {
-    console.error(e);
-    res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
-  }
-};
-
 export const getOneUser = async (req, res) => {
   try {
     await client.connect();

@@ -7,10 +7,15 @@ import {
   createUser,
   getUsers,
   getOneUser,
-  getUserRole,
   updateUser,
   checkUserRole,
 } from "./users";
+import {
+  createTeacher,
+  getOneTeacher,
+  getTeachers,
+  updateTeacher,
+} from "./teachers";
 
 const app = express();
 app.use(express.json());
@@ -24,7 +29,7 @@ const checkJwt = auth({
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
-// Mudir - Admins
+// Admins
 app.get("/admins", getAdmins);
 app.post("/admins", checkJwt, createAdmin);
 app.put("/admins", checkJwt, updateAdmin);
@@ -35,6 +40,12 @@ app.post("/users/byEmail", checkJwt, getOneUser);
 app.post("/users", createUser);
 app.put("/users", checkJwt, updateUser);
 app.post("/users/role", checkUserRole);
+
+// Teachers
+app.get("/teachers", checkJwt, getTeachers);
+app.get("/teachers/:id", checkJwt, getOneTeacher);
+app.post("/teachers", checkJwt, createTeacher);
+app.put("/teachers/:id", checkJwt, updateTeacher);
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
