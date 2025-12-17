@@ -1,4 +1,6 @@
-require("dotenv").config();
+import { config } from "dotenv";
+config();
+
 import cors from "cors";
 import express from "express";
 import { auth } from "express-oauth2-jwt-bearer";

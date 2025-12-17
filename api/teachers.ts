@@ -1,4 +1,6 @@
-require("dotenv").config();
+import { config } from "dotenv";
+config();
+
 import { MongoClient, ObjectId } from "mongodb";
 import { createUpdatePayload } from "../utils/payload";
 
