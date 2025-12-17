@@ -16,6 +16,7 @@ import {
   getTeachers,
   updateTeacher,
 } from "./teachers";
+import { authRedirect, createMeeting, getAuth } from "./meet";
 
 const app = express();
 app.use(express.json());
@@ -46,6 +47,11 @@ app.get("/teachers", checkJwt, getTeachers);
 app.get("/teachers/:id", checkJwt, getOneTeacher);
 app.post("/teachers", checkJwt, createTeacher);
 app.put("/teachers/:id", checkJwt, updateTeacher);
+
+app.get("/auth", getAuth);
+app.get("/auth/google/callback", authRedirect);
+app.post("/meet", checkJwt, createMeeting);
+//@TODO: add GET /class/:id/meet
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
