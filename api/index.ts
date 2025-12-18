@@ -1,4 +1,6 @@
-require("dotenv").config();
+import { config } from "dotenv";
+config();
+
 import cors from "cors";
 import express from "express";
 import { auth } from "express-oauth2-jwt-bearer";
@@ -17,6 +19,12 @@ import {
   updateTeacher,
 } from "./teachers";
 import { authRedirect, createMeeting, getAuth } from "./meet";
+import {
+  createClassroom,
+  getClassrooms,
+  getOneClass,
+  updateClassroom,
+} from "./classroom";
 
 const app = express();
 app.use(express.json());
@@ -52,6 +60,12 @@ app.get("/auth", getAuth);
 app.get("/auth/google/callback", authRedirect);
 app.post("/meet", checkJwt, createMeeting);
 //@TODO: add GET /class/:id/meet
+
+// Classrooms
+app.get("/classrooms", checkJwt, getClassrooms);
+app.post("/classrooms", checkJwt, createClassroom);
+app.get("/classrooms/:id", checkJwt, getOneClass);
+app.put("/classrooms/:id", checkJwt, updateClassroom);
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
