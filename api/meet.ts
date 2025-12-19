@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+const { google } = require("googleapis");
 import { oauth2Client, SCOPES } from "../utils/auth";
 import { MongoClient } from "mongodb";
 import dayjs from "dayjs";
