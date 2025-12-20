@@ -11,6 +11,8 @@ import {
   getOneUser,
   updateUser,
   checkUserRole,
+  getUnenrolledUsers,
+  enrollInClass,
 } from "./users";
 import {
   createTeacher,
@@ -49,6 +51,8 @@ app.post("/users/byEmail", checkJwt, getOneUser);
 app.post("/users", createUser);
 app.put("/users", checkJwt, updateUser);
 app.post("/users/role", checkUserRole);
+app.get("/users/unenrolled", checkJwt, getUnenrolledUsers);
+app.put("/users/:id/enroll", checkJwt, enrollInClass);
 
 // Teachers
 app.get("/teachers", checkJwt, getTeachers);
