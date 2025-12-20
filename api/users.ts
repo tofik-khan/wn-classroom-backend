@@ -61,6 +61,7 @@ export const createUser = async (req, res) => {
         timestamp: dayjs().format(),
         isAuthorized: false,
         isComplete: false,
+        classrooms: [],
       });
     res.send({ status: "success", data: result });
   } catch (e) {
@@ -119,6 +120,55 @@ export const checkUserRole = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
+  } finally {
+    await client.close();
+  }
+};
+
+/**
+ * Return students that have not been been assigned to any class
+ * @param req
+ * @param res
+ */
+export const getUnenrolledUsers = async (req, res) => {
+  try {
+    await client.connect();
+
+    const applicants = await client
+      .db("wn-classroom")
+      .collection("users")
+      .find({ role: "student", classrooms: { $size: 0 } })
+      .toArray();
+    res.send(applicants);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ status: "error", message: e.message });
+  } finally {
+    await client.close();
+  }
+};
+
+/**
+ * Enroll student into different classes
+ */
+export const enrollInClass = async (req, res) => {
+  try {
+    await client.connect();
+    const classrooms = req.body.classrooms;
+    const _id =
+      typeof req.params.id === "string"
+        ? new ObjectId(req.params.id)
+        : req.params.id;
+
+    const result = await client
+      .db("wn-classroom")
+      .collection("users")
+      .updateOne({ _id }, { $set: { classrooms: classrooms } });
+
+    res.send({ status: "success", data: result });
+  } catch (e) {
+    console.log(e);
+    res.send(500).send({ status: "error", message: e.message });
   } finally {
     await client.close();
   }
