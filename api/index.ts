@@ -28,6 +28,7 @@ import {
   updateClassroom,
 } from "./classroom";
 import { getOneStudent, getStudents, updateStudent } from "./students";
+import { getOneParent, getParents, updateParent } from "./parents";
 
 const app = express();
 app.use(express.json());
@@ -76,6 +77,12 @@ app.put("/classrooms/:id", checkJwt, updateClassroom);
 app.get("/students", checkJwt, getStudents);
 app.get("/students/:id", checkJwt, getOneStudent);
 app.put("/students/:id", checkJwt, updateStudent);
+
+// Parents
+app.get("/parents", checkJwt, getParents);
+app.get("/parents/:id", checkJwt, getOneParent);
+// app.post("/parents/findStudents")
+app.put("/parents/:id", checkJwt, updateParent);
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
