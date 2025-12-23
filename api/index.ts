@@ -17,6 +17,7 @@ import {
 import {
   createTeacher,
   getOneTeacher,
+  getTeacherByClassId,
   getTeachers,
   updateTeacher,
 } from "./teachers";
@@ -61,6 +62,7 @@ app.get("/teachers", checkJwt, getTeachers);
 app.get("/teachers/:id", checkJwt, getOneTeacher);
 app.post("/teachers", checkJwt, createTeacher);
 app.put("/teachers/:id", checkJwt, updateTeacher);
+app.get("/teachers/classrooms/:id", checkJwt, getTeacherByClassId);
 
 app.get("/auth", getAuth);
 app.get("/auth/google/callback", authRedirect);
