@@ -86,3 +86,21 @@ export const updateTeacher = async (req, res) => {
     await client.close();
   }
 };
+
+export const getTeacherByClassId = async (req, res) => {
+  try {
+    const _id = req.params.id;
+    await client.connect();
+    const result = await client
+      .db("wn-classroom")
+      .collection("teachers")
+      .find({ "class.value": _id })
+      .toArray();
+    res.send(result[0]);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ status: "error", message: e.message });
+  } finally {
+    await client.close();
+  }
+};
