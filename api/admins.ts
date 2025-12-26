@@ -33,7 +33,7 @@ export const createAdmin = async (req, res) => {
     const result = await client
       .db("wn-classroom")
       .collection("admins")
-      .insertOne(req.body);
+      .insertOne({ ...req.body, role: "admin" });
     res.send({ status: "success", data: result });
   } catch (e) {
     console.error(e);
