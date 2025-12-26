@@ -70,3 +70,22 @@ export const updateParent = async (req, res) => {
     await client.close();
   }
 };
+
+export const getMyStudents = async (req, res) => {
+  try {
+    await client.connect();
+    const { email } = req.body;
+
+    const users = await client
+      .db("wn-classroom")
+      .collection("users")
+      .find({ parentEmail: email })
+      .toArray();
+    res.send(users);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ status: "error", message: e.message });
+  } finally {
+    await client.close();
+  }
+};
