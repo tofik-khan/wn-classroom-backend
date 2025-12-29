@@ -132,7 +132,7 @@ export const createStudent = async (req, res) => {
       .collection("users")
       .insertOne({
         ...req.body,
-        role: "unregistered",
+        role: "student",
         timestamp: dayjs().format(),
         classrooms: [],
       });
