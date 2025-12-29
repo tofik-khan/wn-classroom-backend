@@ -59,8 +59,6 @@ export const createUser = async (req, res) => {
       .insertOne({
         ...req.body,
         timestamp: dayjs().format(),
-        isAuthorized: false,
-        isComplete: false,
         classrooms: [],
       });
     res.send({ status: "success", data: result });
