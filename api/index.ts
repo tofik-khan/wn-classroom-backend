@@ -13,6 +13,7 @@ import {
   checkUserRole,
   getUnenrolledUsers,
   enrollInClass,
+  getUserMembercodes,
 } from "./users";
 import {
   createTeacher,
@@ -67,6 +68,7 @@ app.put("/users", checkJwt, updateUser);
 app.post("/users/role", checkUserRole);
 app.get("/users/unenrolled", checkJwt, getUnenrolledUsers);
 app.put("/users/:id/enroll", checkJwt, enrollInClass);
+app.get("/users/membercodes", checkJwt, getUserMembercodes);
 
 // Teachers
 app.get("/teachers", checkJwt, getTeachers);
