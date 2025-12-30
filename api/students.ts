@@ -71,3 +71,25 @@ export const updateStudent = async (req, res) => {
     await client.close();
   }
 };
+
+export const getStudentsinClassroom = async (classroomId) => {
+  try {
+    await client.connect();
+
+    const students = await client
+      .db("wn-classroom")
+      .collection("users")
+      .find({
+        role: "student",
+        classrooms: {
+          $elemMatch: { value: classroomId },
+        },
+      })
+      .toArray();
+    return students;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    await client.close();
+  }
+};

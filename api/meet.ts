@@ -26,7 +26,14 @@ export const authRedirect = async (req, res) => {
       id: req.query.state,
       tokens,
     });
-    res.send({ result, expiry: tokens.expiry_date });
+    res.set("Content-Type", "text/html");
+    res.send(
+      Buffer.from(`
+      <h2>Your Google Account is now connected to Waqf-e-Nau Classroom.</h2>
+      <p>This is only valid for one operation and will disconnect in 10 minutes for your account saftey.</p>
+      <p><em>You can close this tab now</em></p>
+      `)
+    );
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -69,10 +76,12 @@ const getAuthTokenFromDB = async (id) => {
   }
 };
 
-export const createMeeting = async (req, res) => {
+export const createMeeting = async (
+  teacherId,
+  className = "Waqf-e-Nau Online Class"
+) => {
   try {
-    const { id, className = "Waqf-e-Nau Online Class" } = req.body;
-    const tokenObj = await getAuthTokenFromDB(id);
+    const tokenObj = await getAuthTokenFromDB(teacherId);
 
     oauth2Client.setCredentials(tokenObj.tokens);
 
@@ -86,7 +95,7 @@ export const createMeeting = async (req, res) => {
       calendarId: "primary",
       requestBody: {
         end: {
-          dateTime: dayjs().format(),
+          dateTime: dayjs().add(1, "hour").format(),
         },
         start: {
           dateTime: dayjs().format(),
@@ -107,11 +116,6 @@ export const createMeeting = async (req, res) => {
       (e) => e.entryPointType === "video"
     )?.uri;
 
-    res.json({
-      eventId: response.data.id,
-      params: req.params,
-      query: req.query,
-      meetLink,
-    });
+    return meetLink;
   } catch (error) {}
 };
