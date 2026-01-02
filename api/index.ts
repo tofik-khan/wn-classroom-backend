@@ -80,7 +80,6 @@ app.get("/teachers/classrooms/:id", checkJwt, getTeacherByClassId);
 app.get("/auth", getAuth);
 app.get("/auth/google/callback", authRedirect);
 app.post("/meet", checkJwt, createMeeting);
-//@TODO: add GET /class/:id/meet
 
 // Classrooms
 app.get("/classrooms", checkJwt, getClassrooms);
