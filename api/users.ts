@@ -52,15 +52,24 @@ export const getOneUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
+    const { email } = req.body;
     await client.connect();
     const result = await client
       .db("wn-classroom")
       .collection("users")
-      .insertOne({
-        ...req.body,
-        timestamp: dayjs().format(),
-        classrooms: [],
-      });
+      .updateOne(
+        {
+          email: email ?? "",
+        },
+        {
+          $setOnInsert: {
+            ...req.body,
+            timestamp: dayjs().format(),
+            classrooms: [],
+          },
+        },
+        { upsert: true }
+      );
     res.send({ status: "success", data: result });
   } catch (e) {
     console.error(e);
