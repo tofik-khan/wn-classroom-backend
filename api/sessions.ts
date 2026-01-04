@@ -32,6 +32,10 @@ export const createSession = async (req, res) => {
     // Generate Meeting Link
     const meetingLink = await createMeeting(teacherId, classroomName);
 
+    if (!meetingLink || meetingLink === "") {
+      throw new Error("Meeting link could not be generated");
+    }
+
     // Insert Session
 
     await client.connect();
@@ -51,9 +55,9 @@ export const createSession = async (req, res) => {
         createdAt: dayjs().format(),
       });
     res.send({ status: "success", data: result });
-  } catch (e) {
-    console.error(e);
-    res.status(500).send({ status: "error", message: e.message });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
   } finally {
     await client.close();
   }
