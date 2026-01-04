@@ -94,7 +94,7 @@ export const getTeacherByClassId = async (req, res) => {
     const result = await client
       .db("wn-classroom")
       .collection("teachers")
-      .find({ "class.value": _id })
+      .find({ "classrooms.value": _id })
       .toArray();
     res.send(result[0]);
   } catch (e) {
