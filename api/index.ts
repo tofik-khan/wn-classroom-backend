@@ -39,6 +39,7 @@ import {
 } from "./parents";
 import { createSession, getSession, updateAttendance } from "./sessions";
 import { createAnnoncement, getAnnouncements } from "./announcement";
+import { createSupportRequest, getSupportRequest } from "./support";
 
 const app = express();
 
@@ -108,6 +109,10 @@ app.put("/sessions/:sessionId/attendance", checkJwt, updateAttendance);
 // Announcements
 app.post("/announcements", checkJwt, createAnnoncement);
 app.get("/announcements/:classroomId", checkJwt, getAnnouncements);
+
+// Support
+app.post("/support", createSupportRequest);
+app.get("/support/:id", checkJwt, getSupportRequest);
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
