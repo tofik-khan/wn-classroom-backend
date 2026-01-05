@@ -2,7 +2,13 @@ import { config } from "dotenv";
 config();
 
 import { MongoClient, ObjectId } from "mongodb";
+
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 import { createUpdatePayload } from "../utils/payload";
 import { getStudentsinClassroom } from "./students";
 import { createMeeting } from "./meet";
@@ -84,5 +90,53 @@ export const getSession = async (req, res) => {
     res.status(500).send({ status: "error", message: e.message });
   } finally {
     await client.close();
+  }
+};
+
+export const updateAttendance = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const { studentId, attendance, role } = req.body;
+
+    await client.connect();
+
+    if (role === "teacher") {
+      // Mark teacher attendance
+      const result = await client
+        .db("wn-classroom")
+        .collection("sessions")
+        .updateOne(
+          { _id: new ObjectId(sessionId) },
+          {
+            $set: {
+              "startTime.actual": dayjs().tz("America/New_York").format(),
+            },
+          }
+        );
+      return res.send(result);
+    } else {
+      // Mark Student attendance
+
+      const result = await client
+        .db("wn-classroom")
+        .collection("sessions")
+        .updateOne(
+          {
+            _id: new ObjectId(sessionId),
+          },
+          {
+            $set: {
+              "attendance.$[student].attendance": attendance ?? "absent",
+            },
+          },
+          {
+            arrayFilters: [{ "student.studentId": new ObjectId(studentId) }],
+          }
+        );
+      return res.send(result);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ status: "error", message: error.message });
   }
 };
