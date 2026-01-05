@@ -37,7 +37,7 @@ import {
   getParents,
   updateParent,
 } from "./parents";
-import { createSession, getSession } from "./sessions";
+import { createSession, getSession, updateAttendance } from "./sessions";
 import { createAnnoncement, getAnnouncements } from "./announcement";
 
 const app = express();
@@ -103,6 +103,7 @@ app.post("/parents/createStudent", checkJwt, createStudent);
 // Sessions
 app.get("/sessions/:classroomId", checkJwt, getSession);
 app.post("/sessions", checkJwt, createSession);
+app.put("/sessions/:sessionId/attendance", checkJwt, updateAttendance);
 
 // Announcements
 app.post("/announcements", checkJwt, createAnnoncement);
