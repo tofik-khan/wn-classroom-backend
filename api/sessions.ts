@@ -9,7 +9,6 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-import { createUpdatePayload } from "../utils/payload";
 import { getStudentsinClassroom } from "./students";
 import { createMeeting } from "./meet";
 
