@@ -24,7 +24,7 @@ export const sessionStarted = (classroomId, classroomName, userName) => `
 
 export const classAnnouncementCreated = (title, content) => `
 <h2 style="text-align: right; font-family: 'Noto Arabic';">السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ &#xFDF2; وَبَرَكَاتُهُ</h2>
-<p><strong>New Class Announcement:<strong></p>
+<p><strong>New Class Announcement:</strong></p>
 <div style="color: #6A0136">${title}</div>
 <div>${content ?? ""}</div>
 `;
