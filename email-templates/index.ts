@@ -21,3 +21,10 @@ export const sessionStarted = (classroomId, classroomName, userName) => `
   <div>جزاک&#xFDF2;</div>
   <div>The Waqf-e-Nau USA Classes Team</div>
 `;
+
+export const classAnnouncementCreated = (title, content) => `
+<h2 style="text-align: right; font-family: 'Noto Arabic';">السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ &#xFDF2; وَبَرَكَاتُهُ</h2>
+<p><strong>New Class Announcement:<strong></p>
+<div style="color: #6A0136">${title}</div>
+<div>${content ?? ""}</div>
+`;
