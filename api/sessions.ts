@@ -11,6 +11,9 @@ dayjs.extend(timezone);
 
 import { getStudentsinClassroom } from "./students";
 import { createMeeting } from "./meet";
+import { dispatchEmail } from "../utils/email";
+import { emailTemplate } from "../email-templates/master-template";
+import { sessionStarted } from "../email-templates";
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
@@ -40,6 +43,25 @@ export const createSession = async (req, res) => {
     if (!meetingLink || meetingLink === "") {
       throw new Error("Meeting link could not be generated");
     }
+
+    students.map(async (student) => {
+      if (student.email !== "")
+        await dispatchEmail({
+          to: student.email,
+          subject: `${classroomName ?? "Class"} Session started`,
+          content: emailTemplate(
+            sessionStarted(classroomId, classroomName, student.name)
+          ),
+        });
+      if (student.parentEmail !== "")
+        await dispatchEmail({
+          to: student.parentEmail,
+          subject: `${classroomName ?? "Class"} Session started`,
+          content: emailTemplate(
+            sessionStarted(classroomId, classroomName, "Parent")
+          ),
+        });
+    });
 
     // Insert Session
 

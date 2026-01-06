@@ -11,3 +11,13 @@ export const registrationSuccess = (user) => `
   <div>جزاک&#xFDF2;</div>
   <div>The Waqf-e-Nau USA Classes Team</div>
 `;
+
+export const sessionStarted = (classroomId, classroomName, userName) => `
+  <h2 style="text-align: right; font-family: 'Noto Arabic';">السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ &#xFDF2; وَبَرَكَاتُهُ</h2>
+  <div>Respected ${userName ?? "Member"},</div>
+  <div>The teacher has started the ${
+    classroomName ?? "class"
+  } session. please join the session from the link in the <a href="https://classroom.waqfenau.us/protected/class/${classroomId}">class dashboard</a> </div>
+  <div>جزاک&#xFDF2;</div>
+  <div>The Waqf-e-Nau USA Classes Team</div>
+`;

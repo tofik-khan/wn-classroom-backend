@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const dispatchEmail = ({
+export const dispatchEmail = async ({
   to,
   subject,
   content,
@@ -9,6 +9,7 @@ export const dispatchEmail = ({
   subject: string;
   content: string;
 }) => {
+  if (!to) return;
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -29,8 +30,12 @@ export const dispatchEmail = ({
     html: content,
   };
 
-  return transporter
-    .sendMail(mailOptions)
-    .then((data) => console.log(data))
-    .catch((e) => console.log("error: ", e));
+  try {
+    return await transporter
+      .sendMail(mailOptions)
+      .then((data) => console.log("sendMail data", data))
+      .catch((error) => console.log("error", error));
+  } catch (e) {
+    return console.log("error: ", e);
+  }
 };
