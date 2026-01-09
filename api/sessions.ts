@@ -6,8 +6,10 @@ import { MongoClient, ObjectId } from "mongodb";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 
 import { getStudentsinClassroom } from "./students";
 import { createMeeting } from "./meet";
@@ -75,7 +77,9 @@ export const createSession = async (req, res) => {
         teacherId,
         teacherRole,
         startTime: {
-          scheduled: scheduledStartTime,
+          scheduled: dayjs
+            .tz(scheduledStartTime, "h:mm", "America/New_York")
+            .format(),
         },
         attendance,
         link: meetingLink,
