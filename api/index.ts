@@ -24,6 +24,7 @@ import {
 } from "./teachers";
 import { authRedirect, createMeeting, getAuth } from "./meet";
 import {
+  addClassroomResource,
   createClassroom,
   getClassrooms,
   getOneClass,
@@ -101,6 +102,7 @@ app.put(
   checkRoles(TEACHER_ROLES),
   updateClassroom
 );
+app.post("/classrooms/:id/resources", checkJwt, addClassroomResource);
 
 // Students
 app.get("/students", checkJwt, checkRoles(["admin"]), getStudents);
