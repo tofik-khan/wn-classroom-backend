@@ -2,12 +2,32 @@ import { config } from "dotenv";
 config();
 
 import { MongoClient, ObjectId } from "mongodb";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { createUpdatePayload } from "../utils/payload";
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
 );
+
+export type Classroom = {
+  _id?: string;
+  name: string;
+  description: string;
+  type: "syllabus" | "urdu";
+  schedule: Dayjs[];
+  start: {
+    label: string;
+    value: string;
+  };
+  end: {
+    label: string;
+    value: string;
+  };
+  resources?: {
+    title: string;
+    link: string;
+  }[];
+};
 
 export const getClassrooms = async (req, res) => {
   try {
@@ -80,6 +100,30 @@ export const updateClassroom = async (req, res) => {
       .db("wn-classroom")
       .collection("classrooms")
       .updateOne({ _id }, { $set: createUpdatePayload(existing, req.body) });
+    res.send({ status: "success", data: result });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ status: "error", message: e.message });
+  } finally {
+    await client.close();
+  }
+};
+
+export const addClassroomResource = async (req, res) => {
+  try {
+    await client.connect();
+
+    const _id =
+      typeof req.params.id === "string"
+        ? new ObjectId(req.params.id)
+        : req.params.id;
+
+    const { link, title } = req.body;
+
+    const result = await client
+      .db("wn-classroom")
+      .collection<Classroom>("classrooms")
+      .updateOne({ _id }, { $push: { resources: { link, title } } });
     res.send({ status: "success", data: result });
   } catch (e) {
     console.error(e);

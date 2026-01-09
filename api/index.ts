@@ -24,6 +24,7 @@ import {
 } from "./teachers";
 import { authRedirect, createMeeting, getAuth } from "./meet";
 import {
+  addClassroomResource,
   createClassroom,
   getClassrooms,
   getOneClass,
@@ -88,6 +89,7 @@ app.get("/classrooms", checkJwt, getClassrooms);
 app.post("/classrooms", checkJwt, createClassroom);
 app.get("/classrooms/:id", checkJwt, getOneClass);
 app.put("/classrooms/:id", checkJwt, updateClassroom);
+app.post("/classrooms/:id/resources", checkJwt, addClassroomResource);
 
 // Students
 app.get("/students", checkJwt, getStudents);
