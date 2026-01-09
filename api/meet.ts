@@ -1,7 +1,12 @@
 const { google } = require("googleapis");
 import { oauth2Client, SCOPES } from "../utils/auth";
 import { MongoClient } from "mongodb";
+
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`

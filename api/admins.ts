@@ -2,6 +2,11 @@ import { config } from "dotenv";
 config();
 
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 import { MongoClient, ObjectId } from "mongodb";
 import { createUpdatePayload } from "../utils/payload";
 

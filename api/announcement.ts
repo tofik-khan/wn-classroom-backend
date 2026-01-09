@@ -2,7 +2,13 @@ import { config } from "dotenv";
 config();
 
 import { MongoClient, ObjectId } from "mongodb";
+
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 import { getStudentsinClassroom } from "./students";
 import { classAnnouncementCreated } from "../email-templates";
 import { emailTemplate } from "../email-templates/master-template";
@@ -21,8 +27,9 @@ export const createAnnoncement = async (req, res) => {
       .collection("announcements")
       .insertOne({
         ...req.body,
-        publishedAt: dayjs().format(),
+        publishedAt: dayjs().tz("America/New_York").format(),
         unpublishedAt: dayjs()
+          .tz("America/New_York")
           .add(duration.time ?? 1, duration.unit ?? "day")
           .format(),
       });
@@ -65,7 +72,9 @@ export const getAnnouncements = async (req, res) => {
 
     res.send(
       announcements.filter((announcement) => {
-        return dayjs(announcement.unpublishedAt).isAfter(dayjs());
+        return dayjs(announcement.unpublishedAt).isAfter(
+          dayjs().tz("America/New_York")
+        );
       })
     );
   } catch (e) {

@@ -3,7 +3,12 @@ config();
 
 import { MongoClient, ObjectId } from "mongodb";
 import { createUpdatePayload } from "../utils/payload";
+
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
@@ -133,7 +138,7 @@ export const createStudent = async (req, res) => {
       .insertOne({
         ...req.body,
         role: "student",
-        timestamp: dayjs().format(),
+        timestamp: dayjs().tz("America/New_York").format(),
         classrooms: [],
       });
 

@@ -2,8 +2,13 @@ import { config } from "dotenv";
 config();
 
 import { MongoClient, ObjectId } from "mongodb";
-import dayjs from "dayjs";
 import { createUpdatePayload } from "../utils/payload";
+
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`

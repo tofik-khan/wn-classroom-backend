@@ -70,7 +70,7 @@ export const createSession = async (req, res) => {
       .db("wn-classroom")
       .collection("sessions")
       .insertOne({
-        date: dayjs().format("YYYY-MM-DD"),
+        date: dayjs().tz("America/New_York").format("YYYY-MM-DD"),
         classroomId,
         teacherId,
         teacherRole,
@@ -79,7 +79,7 @@ export const createSession = async (req, res) => {
         },
         attendance,
         link: meetingLink,
-        createdAt: dayjs().format(),
+        createdAt: dayjs().tz("America/New_York").format(),
       });
     res.send({ status: "success", data: result });
   } catch (error) {
@@ -98,7 +98,10 @@ export const getSession = async (req, res) => {
     const sessions = await client
       .db("wn-classroom")
       .collection("sessions")
-      .find({ classroomId, date: dayjs().format("YYYY-MM-DD") })
+      .find({
+        classroomId,
+        date: dayjs().tz("America/New_York").format("YYYY-MM-DD"),
+      })
       .toArray();
 
     res.send(
