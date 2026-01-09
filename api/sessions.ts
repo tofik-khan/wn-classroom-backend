@@ -127,7 +127,10 @@ export const updateAttendance = async (req, res) => {
         .db("wn-classroom")
         .collection("sessions")
         .updateOne(
-          { _id: new ObjectId(sessionId) },
+          {
+            _id: new ObjectId(sessionId),
+            "startTime.actual": { $exists: false },
+          },
           {
             $set: {
               "startTime.actual": dayjs().tz("America/New_York").format(),

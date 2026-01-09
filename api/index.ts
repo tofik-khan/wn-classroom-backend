@@ -41,6 +41,7 @@ import {
 import { createSession, getSession, updateAttendance } from "./sessions";
 import { createAnnoncement, getAnnouncements } from "./announcement";
 import { createSupportRequest, getSupportRequest } from "./support";
+import { checkRoles } from "../utils/checkRoles";
 
 const app = express();
 
@@ -56,28 +57,35 @@ const checkJwt = auth({
   tokenSigningAlg: "RS256",
 });
 
+const TEACHER_ROLES = ["admin", "teacher", "substitute"];
+
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
 // Admins
 app.get("/admins", getAdmins);
-app.post("/admins", checkJwt, createAdmin);
-app.put("/admins", checkJwt, updateAdmin);
+app.post("/admins", checkJwt, checkRoles(["admin"]), createAdmin);
+app.put("/admins", checkJwt, checkRoles(["admin"]), updateAdmin);
 
 // Users
-app.get("/users", checkJwt, getUsers);
+app.get("/users", checkJwt, checkRoles(["admin"]), getUsers);
 app.post("/users/byEmail", checkJwt, getOneUser);
 app.post("/users", createUser);
 app.put("/users", checkJwt, updateUser);
 app.post("/users/role", checkUserRole);
-app.get("/users/unenrolled", checkJwt, getUnenrolledUsers);
-app.put("/users/:id/enroll", checkJwt, enrollInClass);
+app.get(
+  "/users/unenrolled",
+  checkJwt,
+  checkRoles(["admin"]),
+  getUnenrolledUsers
+);
+app.put("/users/:id/enroll", checkJwt, checkRoles(["admin"]), enrollInClass);
 app.get("/users/membercodes", checkJwt, getUserMembercodes);
 
 // Teachers
-app.get("/teachers", checkJwt, getTeachers);
-app.get("/teachers/:id", checkJwt, getOneTeacher);
-app.post("/teachers", checkJwt, createTeacher);
-app.put("/teachers/:id", checkJwt, updateTeacher);
+app.get("/teachers", checkJwt, checkRoles(["admin"]), getTeachers);
+app.get("/teachers/:id", checkJwt, checkRoles(["admin"]), getOneTeacher);
+app.post("/teachers", checkJwt, checkRoles(["admin"]), createTeacher);
+app.put("/teachers/:id", checkJwt, checkRoles(["admin"]), updateTeacher);
 app.get("/teachers/classrooms/:id", checkJwt, getTeacherByClassId);
 
 app.get("/auth", getAuth);
@@ -86,35 +94,55 @@ app.post("/meet", checkJwt, createMeeting);
 
 // Classrooms
 app.get("/classrooms", checkJwt, getClassrooms);
-app.post("/classrooms", checkJwt, createClassroom);
+app.post("/classrooms", checkJwt, checkRoles(["admin"]), createClassroom);
 app.get("/classrooms/:id", checkJwt, getOneClass);
-app.put("/classrooms/:id", checkJwt, updateClassroom);
+app.put(
+  "/classrooms/:id",
+  checkJwt,
+  checkRoles(TEACHER_ROLES),
+  updateClassroom
+);
 app.post("/classrooms/:id/resources", checkJwt, addClassroomResource);
 
 // Students
-app.get("/students", checkJwt, getStudents);
-app.get("/students/:id", checkJwt, getOneStudent);
-app.put("/students/:id", checkJwt, updateStudent);
+app.get("/students", checkJwt, checkRoles(["admin"]), getStudents);
+app.get("/students/:id", checkJwt, checkRoles(["admin"]), getOneStudent);
+app.put("/students/:id", checkJwt, checkRoles(["admin"]), updateStudent);
 
 // Parents
-app.get("/parents", checkJwt, getParents);
-app.get("/parents/:id", checkJwt, getOneParent);
-app.put("/parents/:id", checkJwt, updateParent);
-app.post("/parents/myStudents", checkJwt, getMyStudents);
-app.post("/parents/createStudent", checkJwt, createStudent);
+app.get("/parents", checkJwt, checkRoles(["admin"]), getParents);
+app.get("/parents/:id", checkJwt, checkRoles(["admin"]), getOneParent);
+app.put("/parents/:id", checkJwt, checkRoles(["admin"]), updateParent);
+app.post(
+  "/parents/myStudents",
+  checkJwt,
+  checkRoles(["parent"]),
+  getMyStudents
+);
+app.post(
+  "/parents/createStudent",
+  checkJwt,
+  checkRoles(["parent"]),
+  createStudent
+);
 
 // Sessions
 app.get("/sessions/:classroomId", checkJwt, getSession);
-app.post("/sessions", checkJwt, createSession);
+app.post("/sessions", checkJwt, checkRoles(TEACHER_ROLES), createSession);
 app.put("/sessions/:sessionId/attendance", checkJwt, updateAttendance);
 
 // Announcements
-app.post("/announcements", checkJwt, createAnnoncement);
+app.post(
+  "/announcements",
+  checkJwt,
+  checkRoles(TEACHER_ROLES),
+  createAnnoncement
+);
 app.get("/announcements/:classroomId", checkJwt, getAnnouncements);
 
 // Support
 app.post("/support", createSupportRequest);
-app.get("/support/:id", checkJwt, getSupportRequest);
+app.get("/support/:id", checkJwt, checkRoles(["admin"]), getSupportRequest);
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
