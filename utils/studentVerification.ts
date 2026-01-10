@@ -11,6 +11,8 @@ const client = new MongoClient(
 const getStudentData = async () => {
   const filepath = process.env.STUDENT_DATA_FILEPATH;
 
+  if (!filepath || filepath === "") return null;
+
   return (await csv().fromFile(filepath)) as {
     name: string;
     membercode: string;
@@ -50,6 +52,8 @@ export async function verifyStudents() {
   const usersCol = db.collection("users");
 
   const studentData = await getStudentData();
+
+  if (!studentData || studentData.length < 1) return;
 
   // Build lookup map
   const studentDataMap = new Map(studentData.map((s) => [s.membercode, s]));
