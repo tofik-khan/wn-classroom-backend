@@ -42,6 +42,7 @@ import { createSession, getSession, updateAttendance } from "./sessions";
 import { createAnnoncement, getAnnouncements } from "./announcement";
 import { createSupportRequest, getSupportRequest } from "./support";
 import { checkRoles } from "../utils/checkRoles";
+import { verifyStudents } from "../utils/studentVerification";
 
 const app = express();
 
@@ -143,6 +144,12 @@ app.get("/announcements/:classroomId", checkJwt, getAnnouncements);
 // Support
 app.post("/support", createSupportRequest);
 app.get("/support/:id", checkJwt, checkRoles(["admin"]), getSupportRequest);
+
+// Student Verification
+app.get("/verify", async (req, res) => {
+  await verifyStudents();
+  res.send("done");
+});
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
