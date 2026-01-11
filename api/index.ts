@@ -63,7 +63,7 @@ const TEACHER_ROLES = ["admin", "teacher", "substitute"];
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
 // Admins
-app.get("/admins", getAdmins);
+app.get("/admins", checkJwt, checkRoles(["admin"]), getAdmins);
 app.post("/admins", checkJwt, checkRoles(["admin"]), createAdmin);
 app.put("/admins", checkJwt, checkRoles(["admin"]), updateAdmin);
 
