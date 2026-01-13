@@ -117,13 +117,13 @@ app.put("/parents/:id", checkJwt, checkRoles(["admin"]), updateParent);
 app.post(
   "/parents/myStudents",
   checkJwt,
-  checkRoles(["parent", "unregistered"]),
+  checkRoles(["admin", "parent", "unregistered"]),
   getMyStudents
 );
 app.post(
   "/parents/createStudent",
   checkJwt,
-  checkRoles(["parent", "unregistered"]),
+  checkRoles(["admin", "parent", "unregistered"]),
   createStudent
 );
 
