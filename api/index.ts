@@ -43,6 +43,7 @@ import { createAnnoncement, getAnnouncements } from "./announcement";
 import { createSupportRequest, getSupportRequest } from "./support";
 import { checkRoles } from "../utils/checkRoles";
 import { verifyStudents } from "../utils/studentVerification";
+import { getStudentsInJammat } from "./secretary";
 
 const app = express();
 
@@ -150,6 +151,14 @@ app.get("/verify", async (req, res) => {
   await verifyStudents();
   res.send("done");
 });
+
+// Secretary
+app.get(
+  "/secretary/getStudents",
+  checkJwt,
+  checkRoles(["admin", "secretary"]),
+  getStudentsInJammat
+);
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
