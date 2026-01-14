@@ -42,6 +42,7 @@ export const getOneUser = async (req, res) => {
       client.db("wn-classroom").collection("admins").findOne({ email }),
       client.db("wn-classroom").collection("teachers").findOne({ email }),
       client.db("wn-classroom").collection("users").findOne({ email }),
+      client.db("wn-classroom").collection("secretaries").findOne({ email }),
     ]);
     const user = result.filter((obj) => !!obj);
     if (user.length < 1)
@@ -123,6 +124,7 @@ export const checkUserRole = async (req, res) => {
       client.db("wn-classroom").collection("admins").findOne({ email }),
       client.db("wn-classroom").collection("teachers").findOne({ email }),
       client.db("wn-classroom").collection("users").findOne({ email }),
+      client.db("wn-classroom").collection("secretaries").findOne({ email }),
     ]);
     const user = result.filter((obj) => !!obj);
     res.send({
