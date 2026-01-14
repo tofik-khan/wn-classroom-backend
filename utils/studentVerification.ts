@@ -89,7 +89,10 @@ export async function verifyStudents() {
     const verification = {
       name: namesMatch(user.name, external.name),
       membercode: isEqual(user.membercode, external.membercode),
-      waqfenauId: isEqual(user.waqfenauId, external.waqfenauId),
+      waqfenauId: isEqual(
+        user.waqfenauId.replace(/[^a-zA-Z0-9]/g, ""),
+        external.waqfenauId
+      ),
       age: Math.abs(calculatedAge - Number(external.age)) < 2,
     };
 
