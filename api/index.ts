@@ -40,7 +40,12 @@ import {
 } from "./parents";
 import { createSession, getSession, updateAttendance } from "./sessions";
 import { createAnnoncement, getAnnouncements } from "./announcement";
-import { createSupportRequest, getSupportRequest } from "./support";
+import {
+  createSupportRequest,
+  getAllSupportCases,
+  getSupportRequest,
+  updateSupportCase,
+} from "./support";
 import { checkRoles } from "../utils/checkRoles";
 import { verifyStudents } from "../utils/studentVerification";
 import { getStudentsInJammat } from "./secretary";
@@ -144,7 +149,9 @@ app.get("/announcements/:classroomId", checkJwt, getAnnouncements);
 
 // Support
 app.post("/support", createSupportRequest);
+app.get("/support", checkJwt, checkRoles(["admin"]), getAllSupportCases);
 app.get("/support/:id", checkJwt, checkRoles(["admin"]), getSupportRequest);
+app.put("/support/:id", checkJwt, checkRoles(["admin"]), updateSupportCase);
 
 // Student Verification
 app.get("/verify", async (req, res) => {
