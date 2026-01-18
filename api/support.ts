@@ -84,7 +84,6 @@ export const getAllSupportCases = async (req, res) => {
 
 export const updateSupportCase = async (req, res) => {
   try {
-    console.log("here");
     await client.connect();
     const _id =
       typeof req.params.id === "string"
