@@ -49,8 +49,6 @@ export const getOneUser = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
 
@@ -78,8 +76,6 @@ export const createUser = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
 
@@ -101,8 +97,6 @@ export const updateUser = async (req, res) => {
   } catch (e) {
     console.log(e);
     res.send(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
 
