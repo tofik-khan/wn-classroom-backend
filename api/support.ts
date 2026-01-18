@@ -11,7 +11,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const client = new MongoClient(
-  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
+  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
 );
 
 export const createSupportRequest = async (req, res) => {
@@ -97,7 +97,15 @@ export const updateSupportCase = async (req, res) => {
     const result = await client
       .db("wn-classroom")
       .collection("support")
-      .updateOne({ _id }, { $set: createUpdatePayload(existing, req.body) });
+      .updateOne(
+        { _id },
+        {
+          $set: createUpdatePayload(existing, {
+            ...req.body,
+            updatedAt: dayjs().tz("America/New_York").format(),
+          }),
+        },
+      );
     res.send({ status: "success", data: result });
   } catch (e) {
     console.error(e);
