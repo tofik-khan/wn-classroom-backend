@@ -18,7 +18,7 @@ import { emailTemplate } from "../email-templates/master-template";
 import { sessionStarted } from "../email-templates";
 
 const client = new MongoClient(
-  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
+  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
 );
 
 export const createSession = async (req, res) => {
@@ -52,7 +52,7 @@ export const createSession = async (req, res) => {
           to: student.email,
           subject: `${classroomName ?? "Class"} Session started`,
           content: emailTemplate(
-            sessionStarted(classroomId, classroomName, student.name)
+            sessionStarted(classroomId, classroomName, student.name),
           ),
         });
       if (student.parentEmail !== "")
@@ -60,7 +60,7 @@ export const createSession = async (req, res) => {
           to: student.parentEmail,
           subject: `${classroomName ?? "Class"} Session started`,
           content: emailTemplate(
-            sessionStarted(classroomId, classroomName, "Parent")
+            sessionStarted(classroomId, classroomName, "Parent"),
           ),
         });
     });
@@ -84,6 +84,7 @@ export const createSession = async (req, res) => {
         attendance,
         link: meetingLink,
         createdAt: dayjs().tz("America/New_York").format(),
+        endTime: dayjs().tz("America/New_York").add(1, "hour").format(),
       });
     res.send({ status: "success", data: result });
   } catch (error) {
@@ -111,7 +112,7 @@ export const getSession = async (req, res) => {
     res.send(
       sessions.sort((a, b) => {
         return dayjs(a.createdAt).isAfter(b.createdAt) ? -1 : 1;
-      })[0]
+      })[0],
     );
   } catch (e) {
     console.error(e);
@@ -142,7 +143,7 @@ export const updateAttendance = async (req, res) => {
             $set: {
               "startTime.actual": dayjs().tz("America/New_York").format(),
             },
-          }
+          },
         );
       return res.send(result);
     } else {
@@ -162,7 +163,7 @@ export const updateAttendance = async (req, res) => {
           },
           {
             arrayFilters: [{ "student.studentId": new ObjectId(studentId) }],
-          }
+          },
         );
       return res.send(result);
     }
