@@ -10,7 +10,7 @@ dayjs.extend(timezone);
 import { createUpdatePayload } from "../utils/payload";
 
 const client = new MongoClient(
-  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
+  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
 );
 
 export type Classroom = {
@@ -46,8 +46,6 @@ export const getClassrooms = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
 
@@ -66,8 +64,6 @@ export const getOneClass = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    client.close();
   }
 };
 
@@ -83,8 +79,6 @@ export const createClassroom = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
 
@@ -108,8 +102,6 @@ export const updateClassroom = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
 
@@ -132,7 +124,5 @@ export const addClassroomResource = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
