@@ -90,8 +90,6 @@ export const createSession = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
-  } finally {
-    await client.close();
   }
 };
 
@@ -117,8 +115,6 @@ export const getSession = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
-  } finally {
-    await client.close();
   }
 };
 
