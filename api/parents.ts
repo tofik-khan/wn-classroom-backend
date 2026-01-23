@@ -11,7 +11,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const client = new MongoClient(
-  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
+  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
 );
 
 export const getParents = async (req, res) => {
@@ -80,12 +80,25 @@ export const updateParent = async (req, res) => {
 export const getMyStudents = async (req, res) => {
   try {
     await client.connect();
+    const role = req.auth.payload[process.env.AUTH0_AUTENTICATION_PAYLOAD];
+    let parentEmail = "";
     const { email } = req.body;
+
+    /**
+     * If current user is an admin, allow email from the body of the request.
+     * If the user is not an admin (most likely a parent), restrict the user
+     * to only getting students from their own account
+     */
+    if (role === "admin") {
+      parentEmail = email;
+    } else {
+      parentEmail = req.auth.payload[process.env.AUTH0_EMAIL_PAYLOAD];
+    }
 
     const users = await client
       .db("wn-classroom")
       .collection("users")
-      .find({ parentEmail: email })
+      .find({ parentEmail })
       .toArray();
     res.send(users);
   } catch (e) {
@@ -99,7 +112,8 @@ export const getMyStudents = async (req, res) => {
 export const createStudent = async (req, res) => {
   try {
     await client.connect();
-    const { membercode, parentEmail } = req.body;
+    const { membercode } = req.body;
+    const parentEmail = req.auth.payload[process.env.AUTH0_EMAIL_PAYLOAD];
 
     /**
      * Check if the user with the membercode for the student already exists.
@@ -123,7 +137,7 @@ export const createStudent = async (req, res) => {
         .collection("users")
         .updateOne(
           { _id: student._id },
-          { $set: createUpdatePayload(student, { parentEmail }) }
+          { $set: createUpdatePayload(student, { parentEmail }) },
         );
 
       return res.send({ status: "success", data: result });
