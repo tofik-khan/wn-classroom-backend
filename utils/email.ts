@@ -10,6 +10,7 @@ export const dispatchEmail = async ({
   content: string;
 }) => {
   if (!to) return;
+  console.log("sending email to:", to);
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -17,6 +18,7 @@ export const dispatchEmail = async ({
       user: process.env.GMAIL_USERNAME,
       pass: process.env.GMAIL_PASSWORD,
     },
+    pool: true,
   });
   transporter
     .verify()
@@ -31,7 +33,7 @@ export const dispatchEmail = async ({
   };
 
   try {
-    return await transporter
+    return transporter
       .sendMail(mailOptions)
       .then((data) => console.log("sendMail data", data))
       .catch((error) => console.log("error", error));

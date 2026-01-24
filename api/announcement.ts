@@ -15,7 +15,7 @@ import { emailTemplate } from "../email-templates/master-template";
 import { dispatchEmail } from "../utils/email";
 
 const client = new MongoClient(
-  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
+  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
 );
 
 export const createAnnoncement = async (req, res) => {
@@ -37,13 +37,13 @@ export const createAnnoncement = async (req, res) => {
     const students = await getStudentsinClassroom(classroomId);
     students.map(async (student) => {
       if (student.email !== "")
-        await dispatchEmail({
+        dispatchEmail({
           to: student.email,
           subject: `Waqf-e-Nau Classes | New Announcement`,
           content: emailTemplate(classAnnouncementCreated(title, content)),
         });
       if (student.parentEmail !== "")
-        await dispatchEmail({
+        dispatchEmail({
           to: student.parentEmail,
           subject: `Waqf-e-Nau Classes | New Announcement`,
           content: emailTemplate(classAnnouncementCreated(title, content)),
@@ -73,9 +73,9 @@ export const getAnnouncements = async (req, res) => {
     res.send(
       announcements.filter((announcement) => {
         return dayjs(announcement.unpublishedAt).isAfter(
-          dayjs().tz("America/New_York")
+          dayjs().tz("America/New_York"),
         );
-      })
+      }),
     );
   } catch (e) {
     console.error(e);

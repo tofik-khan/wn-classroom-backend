@@ -48,7 +48,7 @@ export const createSession = async (req, res) => {
 
     students.map(async (student) => {
       if (student.email !== "")
-        await dispatchEmail({
+        dispatchEmail({
           to: student.email,
           subject: `${classroomName ?? "Class"} Session started`,
           content: emailTemplate(
@@ -56,7 +56,7 @@ export const createSession = async (req, res) => {
           ),
         });
       if (student.parentEmail !== "")
-        await dispatchEmail({
+        dispatchEmail({
           to: student.parentEmail,
           subject: `${classroomName ?? "Class"} Session started`,
           content: emailTemplate(
