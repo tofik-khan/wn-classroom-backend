@@ -8,6 +8,7 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 import { createUpdatePayload } from "../utils/payload";
+import { getStudentsinClassroom } from "./students";
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
@@ -121,6 +122,18 @@ export const addClassroomResource = async (req, res) => {
       .collection<Classroom>("classrooms")
       .updateOne({ _id }, { $push: { resources: { link, title } } });
     res.send({ status: "success", data: result });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ status: "error", message: e.message });
+  }
+};
+
+export const getStudentsInClassroomAPI = async (req, res) => {
+  try {
+    await client.connect();
+    const _id = req.params.id;
+    const students = await getStudentsinClassroom(_id);
+    res.send(students);
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
