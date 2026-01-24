@@ -28,6 +28,7 @@ import {
   createClassroom,
   getClassrooms,
   getOneClass,
+  getStudentsInClassroomAPI,
   updateClassroom,
 } from "./classroom";
 import { getOneStudent, getStudents, updateStudent } from "./students";
@@ -83,7 +84,7 @@ app.get(
   "/users/unenrolled",
   checkJwt,
   checkRoles(["admin"]),
-  getUnenrolledUsers
+  getUnenrolledUsers,
 );
 app.put("/users/:id/enroll", checkJwt, checkRoles(["admin"]), enrollInClass);
 app.get("/users/membercodes", checkJwt, getUserMembercodes);
@@ -107,9 +108,15 @@ app.put(
   "/classrooms/:id",
   checkJwt,
   checkRoles(TEACHER_ROLES),
-  updateClassroom
+  updateClassroom,
 );
 app.post("/classrooms/:id/resources", checkJwt, addClassroomResource);
+app.get(
+  "/classrooms/:id/students",
+  checkJwt,
+  checkRoles(TEACHER_ROLES),
+  getStudentsInClassroomAPI,
+);
 
 // Students
 app.get("/students", checkJwt, checkRoles(["admin"]), getStudents);
@@ -124,13 +131,13 @@ app.post(
   "/parents/myStudents",
   checkJwt,
   checkRoles(["admin", "parent", "unregistered"]),
-  getMyStudents
+  getMyStudents,
 );
 app.post(
   "/parents/createStudent",
   checkJwt,
   checkRoles(["admin", "parent", "unregistered"]),
-  createStudent
+  createStudent,
 );
 
 // Sessions
@@ -143,7 +150,7 @@ app.post(
   "/announcements",
   checkJwt,
   checkRoles(TEACHER_ROLES),
-  createAnnoncement
+  createAnnoncement,
 );
 app.get("/announcements/:classroomId", checkJwt, getAnnouncements);
 
@@ -164,7 +171,7 @@ app.get(
   "/secretary/getStudents",
   checkJwt,
   checkRoles(["admin", "secretary"]),
-  getStudentsInJammat
+  getStudentsInJammat,
 );
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
