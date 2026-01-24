@@ -5,7 +5,7 @@ import { MongoClient } from "mongodb";
 config();
 
 const client = new MongoClient(
-  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
+  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
 );
 
 const getStudentData = async () => {
@@ -44,7 +44,7 @@ function namesMatch(needle, haystack) {
 
 function isEqual(a, b) {
   if (a == null || b == null) return false;
-  return String(a).trim() === String(b).trim();
+  return String(a).toLowerCase().trim() === String(b).toLowerCase().trim();
 }
 
 export async function verifyStudents() {
@@ -79,7 +79,7 @@ export async function verifyStudents() {
               age: false,
             },
           },
-        }
+        },
       );
       continue;
     }
@@ -91,7 +91,7 @@ export async function verifyStudents() {
       membercode: isEqual(user.membercode, external.membercode),
       waqfenauId: isEqual(
         user.waqfenauId.replace(/[^a-zA-Z0-9]/g, ""),
-        external.waqfenauId
+        external.waqfenauId,
       ),
       age: Math.abs(calculatedAge - Number(external.age)) < 2,
     };
@@ -102,7 +102,7 @@ export async function verifyStudents() {
         $set: {
           verification,
         },
-      }
+      },
     );
   }
 }
