@@ -116,7 +116,10 @@ export const sessionReportPipelineByDate = (date) => [
     },
   },
   {
-    $unwind: "$teacher",
+    $unwind: {
+      path: "$teacher",
+      preserveNullAndEmptyArrays: true,
+    },
   },
   {
     $project: {
@@ -137,6 +140,7 @@ export const sessionReportPipelineByDate = (date) => [
       tardy: {
         $ifNull: ["$attendanceSummary.tardy", 0],
       },
+      excused: { $ifNull: ["$attendanceSummary.excused", 0] },
     },
   },
   {
