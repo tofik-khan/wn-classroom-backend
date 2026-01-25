@@ -177,13 +177,13 @@ app.get(
 
 // Reports
 app.get(
-  "/reports/:year",
+  "/sessions/reports/:year",
   checkJwt,
   checkRoles(["admin"]),
   getSessionsForTheYear,
 );
 app.get(
-  "/reports/sessions/:date",
+  "/sessions/reports/sessions/:date",
   checkJwt,
   checkRoles(["admin"]),
   getSessionReport,
