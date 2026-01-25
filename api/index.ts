@@ -50,6 +50,7 @@ import {
 import { checkRoles } from "../utils/checkRoles";
 import { verifyStudents } from "../utils/studentVerification";
 import { getStudentsInJammat } from "./secretary";
+import { getSessionReport, getSessionsForTheYear } from "./reports";
 
 const app = express();
 
@@ -172,6 +173,20 @@ app.get(
   checkJwt,
   checkRoles(["admin", "secretary"]),
   getStudentsInJammat,
+);
+
+// Reports
+app.get(
+  "/reports/:year",
+  checkJwt,
+  checkRoles(["admin"]),
+  getSessionsForTheYear,
+);
+app.get(
+  "/reports/sessions/:date",
+  checkJwt,
+  checkRoles(["admin"]),
+  getSessionReport,
 );
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
