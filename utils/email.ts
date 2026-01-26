@@ -5,12 +5,11 @@ export const dispatchEmail = async ({
   subject,
   content,
 }: {
-  to: string;
+  to: string | string[];
   subject: string;
   content: string;
 }) => {
   if (!to) return;
-  console.log("sending email to:", to);
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -20,14 +19,27 @@ export const dispatchEmail = async ({
     },
     pool: true,
   });
-  transporter
-    .verify()
-    .then((data) => console.log(data))
-    .catch((data) => console.error(data));
+  transporter.verify().catch((data) => console.error(data));
+
+  /**
+   * Check if provided recepients is an array or single user
+   * If Array, include them all in bcc
+   * If single, send directly
+   */
+  let receiver = {};
+  if (Array.isArray(to)) {
+    receiver = {
+      bcc: to,
+    };
+  } else {
+    receiver = {
+      to,
+    };
+  }
 
   var mailOptions = {
     from: process.env.GMAIL_USERNAME,
-    to,
+    ...receiver,
     subject,
     html: content,
   };
@@ -35,7 +47,6 @@ export const dispatchEmail = async ({
   try {
     return transporter
       .sendMail(mailOptions)
-      .then((data) => console.log("sendMail data", data))
       .catch((error) => console.log("error", error));
   } catch (e) {
     return console.log("error: ", e);
