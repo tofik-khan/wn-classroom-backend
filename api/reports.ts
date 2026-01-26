@@ -56,3 +56,19 @@ export const getSessionReport = async (req, res) => {
     res.status(500).send({ status: "error", message: e.message });
   }
 };
+
+export const getClassroomSessionReport = async (req, res) => {
+  try {
+    const { date, classroomId } = req.params;
+    await client.connect();
+    const session = await client
+      .db("wn-classroom")
+      .collection("sessions")
+      .find({ date, classroomId })
+      .toArray();
+    res.send(session[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+};
