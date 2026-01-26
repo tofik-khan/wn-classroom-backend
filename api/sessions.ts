@@ -46,23 +46,28 @@ export const createSession = async (req, res) => {
       throw new Error("Meeting link could not be generated");
     }
 
-    students.map(async (student) => {
-      if (student.email !== "")
-        dispatchEmail({
-          to: student.email,
-          subject: `${classroomName ?? "Class"} Session started`,
-          content: emailTemplate(
-            sessionStarted(classroomId, classroomName, student.name),
-          ),
-        });
-      if (student.parentEmail !== "")
-        dispatchEmail({
-          to: student.parentEmail,
-          subject: `${classroomName ?? "Class"} Session started`,
-          content: emailTemplate(
-            sessionStarted(classroomId, classroomName, "Parent"),
-          ),
-        });
+    const studentEmails: string[] = [];
+    const parentEmails: string[] = [];
+
+    students.map((student) => {
+      if (student.email !== "") studentEmails.push(student.email);
+      if (student.parentEmail !== "") parentEmails.push(student.parentEmail);
+    });
+
+    await dispatchEmail({
+      to: studentEmails,
+      subject: `${classroomName ?? "Class"} Session started`,
+      content: emailTemplate(
+        sessionStarted(classroomId, classroomName, "Student"),
+      ),
+    });
+
+    await dispatchEmail({
+      to: parentEmails,
+      subject: `${classroomName ?? "Class"} Session started`,
+      content: emailTemplate(
+        sessionStarted(classroomId, classroomName, "Parent"),
+      ),
     });
 
     // Insert Session

@@ -35,19 +35,19 @@ export const createAnnoncement = async (req, res) => {
       });
 
     const students = await getStudentsinClassroom(classroomId);
-    students.map(async (student) => {
-      if (student.email !== "")
-        dispatchEmail({
-          to: student.email,
-          subject: `Waqf-e-Nau Classes | New Announcement`,
-          content: emailTemplate(classAnnouncementCreated(title, content)),
-        });
-      if (student.parentEmail !== "")
-        dispatchEmail({
-          to: student.parentEmail,
-          subject: `Waqf-e-Nau Classes | New Announcement`,
-          content: emailTemplate(classAnnouncementCreated(title, content)),
-        });
+
+    const studentEmails: string[] = [];
+    const parentEmails: string[] = [];
+
+    students.map((student) => {
+      if (student.email !== "") studentEmails.push(student.email);
+      if (student.parentEmail !== "") parentEmails.push(student.parentEmail);
+    });
+
+    await dispatchEmail({
+      to: [...studentEmails, ...parentEmails],
+      subject: `Waqf-e-Nau Classes | New Announcement`,
+      content: emailTemplate(classAnnouncementCreated(title, content)),
     });
 
     res.send(result);
