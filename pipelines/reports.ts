@@ -149,3 +149,71 @@ export const sessionReportPipelineByDate = (date) => [
     },
   },
 ];
+
+export const StudentReportByClassroomId = (classroomId) => [
+  {
+    $match: {
+      role: "student",
+      "classrooms.value": classroomId,
+    },
+  },
+  {
+    $lookup: {
+      from: "sessions",
+      let: {
+        studentId: "$_id",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$classroomId", classroomId],
+            },
+          },
+        },
+        {
+          $project: {
+            date: 1,
+            attendance: {
+              $filter: {
+                input: "$attendance",
+                as: "a",
+                cond: {
+                  $eq: ["$$a.studentId", "$$studentId"],
+                },
+              },
+            },
+          },
+        },
+      ],
+      as: "sessions",
+    },
+  },
+  {
+    $addFields: {
+      sessions: {
+        $map: {
+          input: "$sessions",
+          as: "s",
+          in: {
+            date: "$$s.date",
+            attendance: {
+              $arrayElemAt: ["$$s.attendance.attendance", 0],
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    $project: {
+      verification: 0,
+      classrooms: 0,
+      suggestedClass: 0,
+      dob: 0,
+      urduClass: 0,
+      timestamp: 0,
+      role: 0,
+    },
+  },
+];
