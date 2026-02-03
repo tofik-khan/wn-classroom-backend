@@ -8,7 +8,7 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 import { createUpdatePayload } from "../utils/payload";
-import { getStudentsinClassroom } from "./students";
+import { StudentReportByClassroomId } from "../pipelines/reports";
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
@@ -132,7 +132,11 @@ export const getStudentsInClassroomAPI = async (req, res) => {
   try {
     await client.connect();
     const _id = req.params.id;
-    const students = await getStudentsinClassroom(_id);
+    const students = await client
+      .db("wn-classroom")
+      .collection("users")
+      .aggregate(StudentReportByClassroomId(_id))
+      .toArray();
     res.send(students);
   } catch (e) {
     console.error(e);

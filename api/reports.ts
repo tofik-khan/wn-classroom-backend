@@ -57,7 +57,7 @@ export const getSessionReport = async (req, res) => {
   }
 };
 
-export const getClassroomSessionReport = async (req, res) => {
+export const getClassroomSessionReportOnDate = async (req, res) => {
   try {
     const { date, classroomId } = req.params;
     await client.connect();

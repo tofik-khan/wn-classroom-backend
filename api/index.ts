@@ -51,7 +51,7 @@ import { checkRoles } from "../utils/checkRoles";
 import { verifyStudents } from "../utils/studentVerification";
 import { getStudentsInJammat } from "./secretary";
 import {
-  getClassroomSessionReport,
+  getClassroomSessionReportOnDate,
   getSessionReport,
   getSessionsForTheYear,
 } from "./reports";
@@ -196,7 +196,7 @@ app.get(
   "/reports/sessions/:date/:classroomId",
   checkJwt,
   checkRoles(["admin"]),
-  getClassroomSessionReport,
+  getClassroomSessionReportOnDate,
 );
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
