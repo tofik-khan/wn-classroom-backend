@@ -1,4 +1,4 @@
-export const checkRoles = (allowedRoles = []) => {
+export const checkRoles = (allowedRoles: string[] = []) => {
   return (req, res, next) => {
     // Defensive: JWT should already be validated by auth()
     if (!req.auth) {
