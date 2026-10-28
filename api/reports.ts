@@ -1,6 +1,8 @@
 import { config } from "dotenv";
 config();
 
+import { Request, Response } from "express";
+
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -9,7 +11,10 @@ dayjs.extend(timezone);
 
 import { MongoClient, ObjectId } from "mongodb";
 import { groupByMonths } from "../utils/time";
-import { sessionReportPipelineByDate } from "../pipelines/reports";
+import {
+  sessionReportPipelineByDate,
+  StudentAnnualReportByYear,
+} from "../pipelines/reports";
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`,
@@ -67,6 +72,22 @@ export const getClassroomSessionReportOnDate = async (req, res) => {
       .find({ date, classroomId })
       .toArray();
     res.send(session[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+};
+
+export const getAnnualStudentsReport = async (req: Request, res: Response) => {
+  try {
+    const year = req.params.year as string;
+    await client.connect();
+    const report = await client
+      .db("wn-classroom")
+      .collection("users")
+      .aggregate(StudentAnnualReportByYear(year))
+      .toArray();
+    res.send(report);
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
