@@ -456,3 +456,426 @@ export const StudentAnnualReportByYear = (year: string) => [
     },
   },
 ];
+
+export const TeachersAnnualReportByYear = (year: string) => {
+  const startDate = `${year}-01-01`;
+  const endDate = `${year + 1}-01-01`;
+  return [
+    // 1. Only include teachers
+    {
+      $match: {
+        role: "teacher",
+      },
+    },
+
+    // 2. Normalize classrooms.
+    // Prevents errors if classrooms is missing or not an array.
+    {
+      $set: {
+        _teacherClassrooms: {
+          $cond: [{ $isArray: "$classrooms" }, "$classrooms", []],
+        },
+      },
+    },
+
+    // 3. Look up the teacher's assigned classroom names
+    {
+      $lookup: {
+        from: "classrooms",
+        let: {
+          enrollments: "$_teacherClassrooms",
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$$enrollments",
+                        as: "enrollment",
+                        cond: {
+                          $eq: [
+                            {
+                              $convert: {
+                                input: "$$enrollment.value",
+                                to: "string",
+                                onError: "",
+                                onNull: "",
+                              },
+                            },
+                            {
+                              $convert: {
+                                input: "$_id",
+                                to: "string",
+                                onError: "",
+                                onNull: "",
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              classId: { $toString: "$_id" },
+              name: 1,
+              type: 1,
+            },
+          },
+        ],
+        as: "assignedClasses",
+      },
+    },
+
+    // 4. Look up sessions actually taught by this teacher
+    {
+      $lookup: {
+        from: "sessions",
+        let: {
+          teacherId: "$_id",
+        },
+        pipeline: [
+          {
+            $match: {
+              date: {
+                $gte: startDate,
+                $lt: endDate,
+              },
+            },
+          },
+
+          // Normalize teacher IDs so strings and ObjectIds can be compared
+          {
+            $set: {
+              _sessionTeacherId: {
+                $convert: {
+                  input: "$teacherId",
+                  to: "string",
+                  onError: "",
+                  onNull: "",
+                },
+              },
+              _reportTeacherId: {
+                $convert: {
+                  input: "$$teacherId",
+                  to: "string",
+                  onError: "",
+                  onNull: "",
+                },
+              },
+            },
+          },
+
+          // Keep sessions actually conducted by this teacher
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $ne: ["$_sessionTeacherId", ""] },
+                  { $eq: ["$_sessionTeacherId", "$_reportTeacherId"] },
+                ],
+              },
+            },
+          },
+
+          // Parse timestamps, preserving their timezone offsets
+          {
+            $set: {
+              _scheduledDate: {
+                $convert: {
+                  input: "$startTime.scheduled",
+                  to: "date",
+                  onError: null,
+                  onNull: null,
+                },
+              },
+              _actualDate: {
+                $convert: {
+                  input: "$startTime.actual",
+                  to: "date",
+                  onError: null,
+                  onNull: null,
+                },
+              },
+            },
+          },
+
+          // Count sessions and those started within 2 minutes
+          {
+            $group: {
+              _id: null,
+
+              sessionsTaught: {
+                $sum: 1,
+              },
+
+              sessionsWithTimestamps: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        { $ne: ["$_scheduledDate", null] },
+                        { $ne: ["$_actualDate", null] },
+                      ],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+
+              onTimeSessions: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        { $ne: ["$_scheduledDate", null] },
+                        { $ne: ["$_actualDate", null] },
+                        {
+                          $lte: [
+                            "$_actualDate",
+                            {
+                              $add: ["$_scheduledDate", 120000],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+
+          {
+            $project: {
+              _id: 0,
+              sessionsTaught: 1,
+              sessionsWithTimestamps: 1,
+              onTimeSessions: 1,
+            },
+          },
+        ],
+        as: "_teachingStats",
+      },
+    },
+
+    // 5. Default to zero if the teacher has no sessions
+    {
+      $set: {
+        _teachingStats: {
+          $ifNull: [
+            { $arrayElemAt: ["$_teachingStats", 0] },
+            {
+              sessionsTaught: 0,
+              sessionsWithTimestamps: 0,
+              onTimeSessions: 0,
+            },
+          ],
+        },
+      },
+    },
+
+    // 6. Find sessions held in this teacher's assigned classrooms
+    {
+      $lookup: {
+        from: "sessions",
+        let: {
+          teacherId: "$_id",
+          classrooms: "$_teacherClassrooms",
+        },
+        pipeline: [
+          {
+            $match: {
+              date: {
+                $gte: startDate,
+                $lt: endDate,
+              },
+            },
+          },
+
+          // A session must belong to one of this teacher's classes
+          {
+            $match: {
+              $expr: {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$$classrooms",
+                        as: "enrollment",
+                        cond: {
+                          $eq: [
+                            {
+                              $convert: {
+                                input: "$$enrollment.value",
+                                to: "string",
+                                onError: "",
+                                onNull: "",
+                              },
+                            },
+                            {
+                              $convert: {
+                                input: "$classroomId",
+                                to: "string",
+                                onError: "",
+                                onNull: "",
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+
+          // Normalize the session teacher and assigned teacher IDs
+          {
+            $set: {
+              _sessionTeacherId: {
+                $convert: {
+                  input: "$teacherId",
+                  to: "string",
+                  onError: "",
+                  onNull: "",
+                },
+              },
+              _assignedTeacherId: {
+                $convert: {
+                  input: "$$teacherId",
+                  to: "string",
+                  onError: "",
+                  onNull: "",
+                },
+              },
+              _teacherRole: {
+                $toLower: {
+                  $ifNull: ["$teacherRole", ""],
+                },
+              },
+            },
+          },
+
+          // Count sessions in assigned classes and those taught by substitutes
+          {
+            $group: {
+              _id: null,
+
+              sessionsInAssignedClasses: {
+                $sum: 1,
+              },
+
+              substituteSessions: {
+                $sum: {
+                  $cond: [
+                    {
+                      $or: [
+                        // Explicitly recorded substitute
+                        { $eq: ["$_teacherRole", "substitute"] },
+
+                        // A different identified teacher conducted the session
+                        {
+                          $and: [
+                            { $ne: ["$_sessionTeacherId", ""] },
+                            {
+                              $ne: [
+                                "$_sessionTeacherId",
+                                "$_assignedTeacherId",
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+
+          {
+            $project: {
+              _id: 0,
+              sessionsInAssignedClasses: 1,
+              substituteSessions: 1,
+            },
+          },
+        ],
+        as: "_substituteStats",
+      },
+    },
+
+    // 7. Supply zeros if no assigned-class sessions were found
+    {
+      $set: {
+        _substituteStats: {
+          $ifNull: [
+            { $arrayElemAt: ["$_substituteStats", 0] },
+            {
+              sessionsInAssignedClasses: 0,
+              substituteSessions: 0,
+            },
+          ],
+        },
+      },
+    },
+
+    // 8. Final report structure
+    {
+      $project: {
+        _id: 0,
+
+        year: {
+          $literal: year,
+        },
+
+        teacher: {
+          _id: { $toString: "$_id" },
+          name: "$name",
+          email: "$email",
+          phone: "$phone",
+          jammat: "$jammat",
+        },
+
+        assignedClasses: "$assignedClasses",
+
+        metrics: {
+          sessionsTaught: "$_teachingStats.sessionsTaught",
+
+          sessionsWithTimestamps: "$_teachingStats.sessionsWithTimestamps",
+
+          onTimeSessions: "$_teachingStats.onTimeSessions",
+
+          sessionsInAssignedClasses:
+            "$_substituteStats.sessionsInAssignedClasses",
+
+          substituteSessions: "$_substituteStats.substituteSessions",
+        },
+      },
+    },
+
+    // 9. Sort alphabetically
+    {
+      $sort: {
+        "teacher.name": 1,
+      },
+    },
+  ];
+};

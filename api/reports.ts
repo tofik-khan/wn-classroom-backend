@@ -14,6 +14,7 @@ import { groupByMonths } from "../utils/time";
 import {
   sessionReportPipelineByDate,
   StudentAnnualReportByYear,
+  TeachersAnnualReportByYear,
 } from "../pipelines/reports";
 
 const client = new MongoClient(
@@ -87,6 +88,23 @@ export const getAnnualStudentsReport = async (req: Request, res: Response) => {
       .collection("users")
       .aggregate(StudentAnnualReportByYear(year))
       .toArray();
+    res.send(report);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+};
+
+export const getAnnualTeachersReport = async (req: Request, res: Response) => {
+  try {
+    const year = req.params.year as string;
+    await client.connect();
+    const report = await client
+      .db("wn-classroom")
+      .collection("teachers")
+      .aggregate(TeachersAnnualReportByYear(year))
+      .toArray();
+
     res.send(report);
   } catch (error) {
     console.error(error);
