@@ -12,6 +12,7 @@ dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
 
 import { getStudentsinClassroom } from "./students";
+import { getActiveLeaveRequests } from "./leaveRequests";
 import { createMeeting } from "./meet";
 import { dispatchEmail } from "../utils/email";
 import { emailTemplate } from "../email-templates/master-template";
@@ -32,11 +33,21 @@ export const createSession = async (req, res) => {
     } = req.body;
 
     // Get Students in current class and create attendacne array
+    // Students with an active leave request for today start as excused
     const students = await getStudentsinClassroom(classroomId);
+    const leaveRequests = await getActiveLeaveRequests(
+      classroomId,
+      dayjs().tz("America/New_York").format("YYYY-MM-DD"),
+    );
+    const excusedStudentIds = leaveRequests.map((leaveRequest) =>
+      leaveRequest.studentId.toString(),
+    );
     const attendance = students.map((student) => ({
       studentId: student._id,
       studentName: student.name,
-      attendance: "absent",
+      attendance: excusedStudentIds.includes(student._id.toString())
+        ? "excused"
+        : "absent",
     }));
 
     // Generate Meeting Link

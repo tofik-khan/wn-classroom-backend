@@ -28,3 +28,27 @@ export const classAnnouncementCreated = (title, content) => `
 <div style="color: #6A0136">${title}</div>
 <div>${content ?? ""}</div>
 `;
+
+const escapeHtml = (value = "") =>
+  `${value}`
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+export const leaveRequested = (leaveRequest: {
+  studentName: any;
+  classroomName: any;
+  date: any;
+  reason: string | undefined;
+}) => `
+<h2 style="text-align: right; font-family: 'Noto Arabic';">السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ &#xFDF2; وَبَرَكَاتُهُ</h2>
+<div>Respected Teacher,</div>
+<div><strong>${escapeHtml(leaveRequest.studentName ?? "A student")}</strong> has requested leave from the ${
+  leaveRequest.classroomName ?? "class"
+} session on ${leaveRequest.date}. They will be marked excused when the session starts.</div>
+<p><strong>Reason:</strong></p>
+<div style="color: #6A0136">${escapeHtml(leaveRequest.reason)}</div>
+<div>جزاک&#xFDF2;</div>
+<div>The Waqf-e-Nau USA Classes Team</div>
+`;
