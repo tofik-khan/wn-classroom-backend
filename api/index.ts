@@ -40,6 +40,12 @@ import {
   updateParent,
 } from "./parents";
 import { createSession, getSession, updateAttendance } from "./sessions";
+import {
+  cancelLeaveRequest,
+  createLeaveRequests,
+  getClassroomLeaveRequests,
+  getMyLeaveRequests,
+} from "./leaveRequests";
 import { createAnnoncement, getAnnouncements } from "./announcement";
 import {
   createSupportRequest,
@@ -151,6 +157,32 @@ app.post(
 app.get("/sessions/:classroomId", checkJwt, getSession);
 app.post("/sessions", checkJwt, checkRoles(TEACHER_ROLES), createSession);
 app.put("/sessions/:sessionId/attendance", checkJwt, updateAttendance);
+
+// Leave Requests
+app.post(
+  "/leave-requests",
+  checkJwt,
+  checkRoles(["student", "parent"]),
+  createLeaveRequests,
+);
+app.get(
+  "/leave-requests/mine",
+  checkJwt,
+  checkRoles(["student", "parent"]),
+  getMyLeaveRequests,
+);
+app.get(
+  "/leave-requests/classroom/:classroomId/:date",
+  checkJwt,
+  checkRoles(TEACHER_ROLES),
+  getClassroomLeaveRequests,
+);
+app.delete(
+  "/leave-requests/:id",
+  checkJwt,
+  checkRoles(["student", "parent"]),
+  cancelLeaveRequest,
+);
 
 // Announcements
 app.post(
