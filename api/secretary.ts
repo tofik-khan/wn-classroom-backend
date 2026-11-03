@@ -2,6 +2,7 @@ import { config } from "dotenv";
 config();
 
 import { MongoClient } from "mongodb";
+import { StudentAttendanceByJammat } from "../pipelines/reports";
 
 const client = new MongoClient(
   `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CONNECTION}/`
@@ -22,22 +23,14 @@ export const getStudentsInJammat = async (req, res) => {
 
     const jammat = secretary.jammat;
 
+    // Pipeline only projects the information that the local secretary needs to view
     const students = await client
       .db("wn-classroom")
       .collection("users")
-      .find({ role: "student", jammat })
+      .aggregate(StudentAttendanceByJammat(jammat))
       .toArray();
 
-    // Only send back the information that the local secretary needs to view
-    res.send(
-      students.map((student) => ({
-        _id: student._id,
-        name: student.name,
-        jammat: student.jammat,
-        waqfenauId: student.waqfenauId,
-        classrooms: student.classrooms,
-      }))
-    );
+    res.send(students);
   } catch (e) {
     console.error(e);
     res.status(500).send({ status: "error", message: e.message });
