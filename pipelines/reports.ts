@@ -218,6 +218,103 @@ export const StudentReportByClassroomId = (classroomId) => [
   },
 ];
 
+export const StudentAttendanceByJammat = (jammat: string) => [
+  // 1. Only include students from the secretary's jammat
+  {
+    $match: {
+      role: "student",
+      jammat,
+    },
+  },
+
+  // 2. Find every session this student has an attendance record in,
+  // across all classrooms (including ones they are no longer enrolled in)
+  {
+    $lookup: {
+      from: "sessions",
+      localField: "_id",
+      foreignField: "attendance.studentId",
+      let: {
+        studentId: "$_id",
+      },
+      pipeline: [
+        // Keep only this student's attendance entry
+        {
+          $set: {
+            _studentAttendance: {
+              $filter: {
+                input: "$attendance",
+                as: "a",
+                cond: {
+                  $eq: ["$$a.studentId", "$$studentId"],
+                },
+              },
+            },
+            _classroomObjectId: {
+              $convert: {
+                input: "$classroomId",
+                to: "objectId",
+                onError: null,
+                onNull: null,
+              },
+            },
+          },
+        },
+
+        // Find the class associated with the session
+        {
+          $lookup: {
+            from: "classrooms",
+            localField: "_classroomObjectId",
+            foreignField: "_id",
+            as: "_classroom",
+          },
+        },
+
+        {
+          $project: {
+            _id: 0,
+            date: 1,
+            classroomId: 1,
+            classroomName: {
+              $arrayElemAt: ["$_classroom.name", 0],
+            },
+            attendance: {
+              $arrayElemAt: ["$_studentAttendance.attendance", 0],
+            },
+          },
+        },
+
+        {
+          $sort: {
+            date: -1,
+          },
+        },
+      ],
+      as: "sessions",
+    },
+  },
+
+  // 3. Only send back the information that the local secretary needs to view
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      jammat: 1,
+      waqfenauId: 1,
+      classrooms: 1,
+      sessions: 1,
+    },
+  },
+
+  // 4. Sort alphabetically
+  {
+    $sort: {
+      name: 1,
+    },
+  },
+];
+
 export const StudentAnnualReportByYear = (year: string) => [
   // 1. Include student accounts
   {
