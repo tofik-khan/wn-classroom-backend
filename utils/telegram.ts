@@ -9,7 +9,9 @@ export const sendTelegramMessage = async (message) => {
     });
 
     await bot
-      .sendMessage(process.env.TELEGRAM_SUPPORT_CHAT, message)
+      .sendMessage(process.env.TELEGRAM_SUPPORT_CHAT, message, {
+        message_thread_id: process.env.TELEGRAM_SUPPORT_CHAT_TOPIC,
+      })
       .then(() => {
         console.log("Message sent successfully!");
       })
